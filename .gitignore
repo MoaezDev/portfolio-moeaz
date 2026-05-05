@@ -1,9 +1,27 @@
 node_modules
 dist
 dist-ssr
+
+# Vite dep pre-bundling cache (machine-specific, regenerated on dev start)
+.vite
+
+# TypeScript composite build incremental info (machine-specific)
+*.tsbuildinfo
+
+# Yarn 4 install state (machine-specific install cache)
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Env files
 .env
 .env.local
 .env.*.local
+
+# Misc
 *.log
 .DS_Store
 .vscode/*
