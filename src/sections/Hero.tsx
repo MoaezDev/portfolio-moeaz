@@ -142,11 +142,19 @@ const AvatarSlot = styled.div`
   place-items: center;
 `;
 
-const ScrollHint = styled(motion.button)`
+const ScrollHintAnchor = styled.div`
   position: absolute;
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 1;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    bottom: 22px;
+  }
+`;
+
+const ScrollHint = styled(motion.button)`
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -192,7 +200,7 @@ export function Hero(): JSX.Element {
             <Button onClick={() => scrollToSection('projects')}>View My Work</Button>
             <Button
               variant="ghost"
-              href={`mailto:${PERSONAL.email}`}
+              onClick={() => scrollToSection('contact')}
               icon={<HiOutlineMail />}
             >
               Get In Touch
@@ -216,16 +224,18 @@ export function Hero(): JSX.Element {
         </motion.div>
       </Content>
 
-      <ScrollHint
-        type="button"
-        onClick={() => scrollToSection('about')}
-        animate={{ y: [0, 6, 0] }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-        aria-label="Scroll to next section"
-      >
-        <span>Scroll</span>
-        <FiArrowDownCircle />
-      </ScrollHint>
+      <ScrollHintAnchor>
+        <ScrollHint
+          type="button"
+          onClick={() => scrollToSection('about')}
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          aria-label="Scroll to next section"
+        >
+          <span>Scroll</span>
+          <FiArrowDownCircle />
+        </ScrollHint>
+      </ScrollHintAnchor>
     </Wrapper>
   );
 }
