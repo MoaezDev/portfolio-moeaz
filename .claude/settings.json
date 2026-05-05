@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(yarn --version)",
+      "Bash(yarn build *)",
+      "Bash(yarn lint *)",
+      "Bash(yarn install *)"
+    ]
+  }
+}
