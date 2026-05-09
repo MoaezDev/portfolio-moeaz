@@ -3,74 +3,32 @@
  * proficiency bar that fills the first time it scrolls into view.
  */
 import { motion } from 'framer-motion';
-import styled from 'styled-components';
 import { SectionWrapper } from '@components/SectionWrapper';
 import { SkillBar } from '@components/SkillBar';
 import { SKILL_GROUPS } from '@constants/data';
 import { fadeLeft, fadeRight, staggerParent } from '@utils/motion';
 
-const Grid = styled(motion.div)`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-`;
-
-const GroupCard = styled(motion.div)`
-  padding: 26px;
-  border-radius: ${({ theme }) => theme.radii.lg};
-  background: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  backdrop-filter: blur(14px);
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  min-width: 0;
-
-  &:hover {
-    border-color: rgba(59, 130, 246, 0.4);
-    box-shadow: ${({ theme }) => theme.shadows.glowBlue};
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 20px;
-    gap: 14px;
-  }
-`;
-
-const GroupTitle = styled.h3`
-  font-size: 1.05rem;
-  font-family: ${({ theme }) => theme.fonts.mono};
-  color: ${({ theme }) => theme.colors.gold};
-  letter-spacing: 0.08em;
-`;
-
-export function Skills(): JSX.Element {
-  return (
+export const Skills = (): JSX.Element => (
     <SectionWrapper id="skills" eyebrow="Skills" title="Tools I work with">
-      <Grid
+      <motion.div
         variants={staggerParent}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
+        className="grid grid-cols-2 gap-6 max-md:grid-cols-1 max-md:gap-[18px]"
       >
         {SKILL_GROUPS.map((group, groupIndex) => (
-          <GroupCard
+          <motion.div
             key={group.title}
             variants={groupIndex % 2 === 0 ? fadeLeft : fadeRight}
+            className="p-[26px] rounded-lg bg-surface border border-border backdrop-blur-[14px] flex flex-col gap-[18px] transition-[border-color,box-shadow] duration-300 min-w-0 hover:border-primary/40 hover:shadow-glow-blue max-sm:p-5 max-sm:gap-3.5"
           >
-            <GroupTitle>{group.title}</GroupTitle>
+            <h3 className="text-[1.05rem] font-mono text-gold tracking-[0.08em]">{group.title}</h3>
             {group.skills.map((skill) => (
               <SkillBar key={skill.name} name={skill.name} level={skill.level} />
             ))}
-          </GroupCard>
+          </motion.div>
         ))}
-      </Grid>
+      </motion.div>
     </SectionWrapper>
-  );
-}
+  )

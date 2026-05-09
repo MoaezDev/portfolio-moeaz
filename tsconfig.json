@@ -24,7 +24,6 @@
       "@sections/*": ["sections/*"],
       "@hooks/*": ["hooks/*"],
       "@constants/*": ["constants/*"],
-      "@styles/*": ["styles/*"],
       "@utils/*": ["utils/*"]
     }
   },

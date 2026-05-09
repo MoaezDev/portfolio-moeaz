@@ -1,144 +1,19 @@
 /**
- * Contact — floating-label form with neon-glow focus states. The form is
- * intentionally local-only: on submit it composes a `mailto:` link so no
- * backend or third-party service is required.
+ * Contact — floating-label form with neon-glow focus states. Submission is
+ * delegated to the useWeb3FormsSubmit hook; this component just owns the
+ * inputs, the validation rules, and the presentation.
  */
+import clsx from 'clsx';
 import { motion } from 'framer-motion';
 import { useState, type FormEvent } from 'react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
-import { HiOutlineMail } from 'react-icons/hi';
-import styled from 'styled-components';
+import { HiOutlineCheckCircle, HiOutlineExclamationCircle, HiOutlineMail } from 'react-icons/hi';
+import { LuLoader } from 'react-icons/lu';
 import { Button } from '@components/Button';
 import { SectionWrapper } from '@components/SectionWrapper';
 import { PERSONAL } from '@constants/data';
+import { useWeb3FormsSubmit } from '@hooks/useWeb3FormsSubmit';
 import { fadeUp } from '@utils/motion';
-
-const Layout = styled(motion.div)`
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 48px;
-  align-items: stretch;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    grid-template-columns: 1fr;
-    gap: 32px;
-  }
-`;
-
-const Intro = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  justify-content: center;
-`;
-
-const Heading = styled.h3`
-  font-size: clamp(1.6rem, 3vw, 2.1rem);
-  background: ${({ theme }) => theme.gradients.brand};
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-`;
-
-const Lead = styled.p`
-  color: ${({ theme }) => theme.colors.textMuted};
-  max-width: 460px;
-`;
-
-const SocialList = styled.ul`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  list-style: none;
-  margin-top: 8px;
-`;
-
-const SocialLink = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: ${({ theme }) => theme.radii.pill};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ theme }) => theme.colors.textMuted};
-  background: rgba(255, 255, 255, 0.03);
-  font-size: 0.9rem;
-  max-width: 100%;
-  transition: color 0.2s, border-color 0.2s, transform 0.2s;
-
-  & > span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 220px;
-  }
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.text};
-    border-color: ${({ theme }) => theme.colors.primary};
-    transform: translateY(-2px);
-  }
-`;
-
-const Form = styled.form`
-  position: relative;
-  padding: 32px;
-  border-radius: ${({ theme }) => theme.radii.lg};
-  background: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  backdrop-filter: blur(14px);
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 22px 18px;
-    gap: 16px;
-  }
-`;
-
-const Field = styled.div`
-  position: relative;
-`;
-
-const sharedInput = `
-  width: 100%;
-  padding: 22px 16px 12px;
-  font-size: 1rem;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(132, 142, 200, 0.18);
-  outline: none;
-  color: inherit;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  resize: vertical;
-
-  &:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18), 0 0 24px rgba(168, 85, 247, 0.25);
-  }
-`;
-
-const Input = styled.input`
-  ${sharedInput}
-`;
-
-const Textarea = styled.textarea`
-  ${sharedInput}
-  min-height: 130px;
-`;
-
-const FloatingLabel = styled.label<{ $active: boolean }>`
-  position: absolute;
-  left: 16px;
-  top: ${({ $active }) => ($active ? '6px' : '18px')};
-  font-size: ${({ $active }) => ($active ? '0.72rem' : '0.95rem')};
-  color: ${({ $active, theme }) => ($active ? theme.colors.primary : theme.colors.textMuted)};
-  pointer-events: none;
-  transition: all 0.18s ease;
-  letter-spacing: ${({ $active }) => ($active ? '0.08em' : '0')};
-  text-transform: ${({ $active }) => ($active ? 'uppercase' : 'none')};
-`;
 
 interface FormState {
   name: string;
@@ -148,71 +23,125 @@ interface FormState {
 
 const EMPTY_FORM: FormState = { name: '', email: '', message: '' };
 
-export function Contact(): JSX.Element {
+const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+const SUCCESS_MESSAGE = "Thanks — your message is on its way. I'll get back to you soon.";
+
+const INPUT_BASE =
+  'w-full px-4 pt-[22px] pb-3 text-base rounded-[12px] bg-white/[0.03] border border-border outline-none text-inherit transition-[border-color,box-shadow] duration-200 resize-y focus:border-primary focus:shadow-[0_0_0_4px_rgba(59,130,246,0.18),0_0_24px_rgba(168,85,247,0.25)] disabled:opacity-60 disabled:cursor-not-allowed';
+
+const SOCIAL_LINK =
+  'inline-flex items-center gap-2 px-3.5 py-2.5 rounded-pill border border-border text-text-muted bg-white/[0.03] text-[0.9rem] max-w-full transition-[color,border-color,transform] duration-200 hover:text-text hover:border-primary hover:-translate-y-0.5 [&>span]:overflow-hidden [&>span]:text-ellipsis [&>span]:whitespace-nowrap [&>span]:max-w-[220px]';
+
+export const Contact = (): JSX.Element => {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [focused, setFocused] = useState<keyof FormState | ''>('');
+  const { submit, setError, status, feedback } = useWeb3FormsSubmit(ACCESS_KEY, {
+    successMessage: SUCCESS_MESSAGE,
+  });
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    const subject = encodeURIComponent(`Portfolio enquiry from ${form.name || 'someone'}`);
-    const body = encodeURIComponent(
-      `${form.message}\n\n— ${form.name}${form.email ? ` (${form.email})` : ''}`,
-    );
-    window.location.href = `mailto:${PERSONAL.email}?subject=${subject}&body=${body}`;
+
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
+      setError('Please fill in your name, email, and message.');
+      return;
+    }
+
+    const result = await submit({
+      name: form.name,
+      email: form.email,
+      message: form.message,
+      subject: `Portfolio enquiry from ${form.name}`,
+      from_name: `${PERSONAL.shortName}.dev contact form`,
+    });
+
+    if (result.ok) setForm(EMPTY_FORM);
   };
 
-  const isActive = (field: keyof FormState): boolean =>
-    focused === field || form[field].length > 0;
+  const isActive = (field: keyof FormState): boolean => focused === field || form[field].length > 0;
+
+  const labelClasses = (active: boolean): string =>
+    clsx(
+      'absolute left-4 pointer-events-none transition-all duration-[180ms]',
+      active
+        ? 'top-1.5 text-[0.72rem] text-primary tracking-[0.08em] uppercase'
+        : 'top-[18px] text-[0.95rem] text-text-muted tracking-normal normal-case',
+    );
+
+  const isSubmitting = status === 'submitting';
 
   return (
     <SectionWrapper id="contact" eyebrow="Contact" title="Let's build something">
-      <Layout
+      <motion.div
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
+        className="grid grid-cols-[1fr_1.2fr] gap-12 items-stretch max-lg:grid-cols-1 max-lg:gap-8"
       >
-        <Intro>
-          <Heading>Open to interesting roles & freelance work.</Heading>
-          <Lead>
-            Got a Flutter project, a cross-platform idea, or a role you think I&apos;d enjoy?
-            The fastest way to reach me is below — I read every message.
-          </Lead>
-          <SocialList>
+        <div className="flex flex-col gap-[18px] justify-center">
+          <h3 className="text-[clamp(1.6rem,3vw,2.1rem)] bg-brand bg-clip-text text-transparent">
+            Open to interesting roles & freelance work.
+          </h3>
+          <p className="text-text-muted max-w-[460px]">
+            Got a Flutter project, a cross-platform idea, or a role you think I&apos;d enjoy? The
+            fastest way to reach me is below — I read every message.
+          </p>
+          <ul className="flex flex-wrap gap-3 list-none mt-2">
             <li>
-              <SocialLink href={`mailto:${PERSONAL.email}`} aria-label="Send an email">
+              <a
+                href={`mailto:${PERSONAL.email}`}
+                aria-label="Send an email"
+                className={SOCIAL_LINK}
+              >
                 <HiOutlineMail />
                 <span>{PERSONAL.email}</span>
-              </SocialLink>
+              </a>
             </li>
             <li>
-              <SocialLink
+              <a
                 href={PERSONAL.linkedin}
                 target="_blank"
                 rel="noreferrer"
                 aria-label="LinkedIn"
+                className={SOCIAL_LINK}
               >
                 <FaLinkedin />
                 <span>LinkedIn</span>
-              </SocialLink>
+              </a>
             </li>
             <li>
-              <SocialLink
+              <a
                 href={PERSONAL.github}
                 target="_blank"
                 rel="noreferrer"
                 aria-label="GitHub"
+                className={SOCIAL_LINK}
               >
                 <FaGithub />
                 <span>GitHub</span>
-              </SocialLink>
+              </a>
             </li>
-          </SocialList>
-        </Intro>
+          </ul>
+        </div>
 
-        <Form onSubmit={handleSubmit} noValidate>
-          <Field>
-            <Input
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          className="relative p-8 rounded-lg bg-surface border border-border backdrop-blur-[14px] flex flex-col gap-[22px] max-sm:p-5 max-sm:gap-4"
+        >
+          {/* Honeypot — bots fill this, humans don't see it. */}
+          <input
+            type="checkbox"
+            name="botcheck"
+            tabIndex={-1}
+            autoComplete="off"
+            className="hidden"
+            aria-hidden="true"
+          />
+
+          <div className="relative">
+            <input
               id="contact-name"
               type="text"
               value={form.name}
@@ -220,14 +149,16 @@ export function Contact(): JSX.Element {
               onFocus={() => setFocused('name')}
               onBlur={() => setFocused('')}
               autoComplete="name"
+              disabled={isSubmitting}
+              className={INPUT_BASE}
             />
-            <FloatingLabel htmlFor="contact-name" $active={isActive('name')}>
+            <label htmlFor="contact-name" className={labelClasses(isActive('name'))}>
               Your name
-            </FloatingLabel>
-          </Field>
+            </label>
+          </div>
 
-          <Field>
-            <Input
+          <div className="relative">
+            <input
               id="contact-email"
               type="email"
               value={form.email}
@@ -237,14 +168,16 @@ export function Contact(): JSX.Element {
               onFocus={() => setFocused('email')}
               onBlur={() => setFocused('')}
               autoComplete="email"
+              disabled={isSubmitting}
+              className={INPUT_BASE}
             />
-            <FloatingLabel htmlFor="contact-email" $active={isActive('email')}>
+            <label htmlFor="contact-email" className={labelClasses(isActive('email'))}>
               Email address
-            </FloatingLabel>
-          </Field>
+            </label>
+          </div>
 
-          <Field>
-            <Textarea
+          <div className="relative">
+            <textarea
               id="contact-message"
               value={form.message}
               onChange={(event) =>
@@ -252,17 +185,47 @@ export function Contact(): JSX.Element {
               }
               onFocus={() => setFocused('message')}
               onBlur={() => setFocused('')}
+              disabled={isSubmitting}
+              className={`${INPUT_BASE} min-h-[130px]`}
             />
-            <FloatingLabel htmlFor="contact-message" $active={isActive('message')}>
+            <label htmlFor="contact-message" className={labelClasses(isActive('message'))}>
               Your message
-            </FloatingLabel>
-          </Field>
+            </label>
+          </div>
+
+          {feedback && (
+            <div
+              role={status === 'error' ? 'alert' : 'status'}
+              aria-live="polite"
+              className={clsx(
+                'flex items-start gap-2 text-[0.88rem] px-3.5 py-3 rounded-md border',
+                status === 'success' && 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200',
+                status === 'error' && 'border-danger/40 bg-danger/10 text-danger',
+              )}
+            >
+              {status === 'success' ? (
+                <HiOutlineCheckCircle className="mt-0.5 shrink-0 text-base" />
+              ) : (
+                <HiOutlineExclamationCircle className="mt-0.5 shrink-0 text-base" />
+              )}
+              <span>{feedback}</span>
+            </div>
+          )}
 
           <div>
-            <Button type="submit">Send Message</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <span className="inline-flex items-center gap-2">
+                  Sending
+                  <LuLoader aria-hidden="true" className="animate-spin text-xl" />
+                </span>
+              ) : (
+                'Send Message'
+              )}
+            </Button>
           </div>
-        </Form>
-      </Layout>
+        </form>
+      </motion.div>
     </SectionWrapper>
   );
-}
+};

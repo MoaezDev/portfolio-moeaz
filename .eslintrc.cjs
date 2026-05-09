@@ -42,7 +42,7 @@ module.exports = {
     'react/require-default-props': 'off',
     'react/function-component-definition': [
       'error',
-      { namedComponents: 'function-declaration' },
+      { namedComponents: 'arrow-function', unnamedComponents: 'arrow-function' },
     ],
     'import/prefer-default-export': 'off',
     'import/extensions': 'off',
