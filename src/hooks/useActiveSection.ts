@@ -1,8 +1,18 @@
 /**
- * Returns the id of whichever tracked section is closest to the top of the
- * viewport — used by the navbar to highlight the active link as the user scrolls.
+ * Returns the id of the section the user is currently reading — used by
+ * the navbar to highlight the active link.
+ *
+ * Strategy: pick the *last* section whose top edge has scrolled past a
+ * trigger line near the top of the viewport (just below the navbar).
+ * This matches what the user intuitively expects — once the next section's
+ * heading enters the viewport, that section becomes active. An
+ * IntersectionObserver with a thin middle band, by contrast, can leave
+ * the previous section "winning" by area for a long time, which is what
+ * the old implementation did.
  */
 import { useEffect, useState } from 'react';
+
+const NAVBAR_OFFSET_PX = 120;
 
 export function useActiveSection(sectionIds: string[]): string {
   const [activeId, setActiveId] = useState<string>(sectionIds[0] ?? '');
@@ -10,24 +20,30 @@ export function useActiveSection(sectionIds: string[]): string {
   useEffect(() => {
     if (sectionIds.length === 0) return undefined;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible.length > 0) {
-          setActiveId(visible[0].target.id);
-        }
-      },
-      { rootMargin: '-40% 0px -50% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] },
-    );
+    const elements = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
 
-    sectionIds.forEach((id) => {
-      const element = document.getElementById(id);
-      if (element) observer.observe(element);
-    });
+    const update = (): void => {
+      const triggerLine =
+        window.scrollY + Math.max(NAVBAR_OFFSET_PX, window.innerHeight * 0.25);
 
-    return () => observer.disconnect();
+      const initial = elements[0]?.id ?? sectionIds[0] ?? '';
+      const current = elements.reduce<string>(
+        (acc, el) => (el.offsetTop <= triggerLine ? el.id : acc),
+        initial,
+      );
+
+      setActiveId((previous) => (previous === current ? previous : current));
+    };
+
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
   }, [sectionIds]);
 
   return activeId;

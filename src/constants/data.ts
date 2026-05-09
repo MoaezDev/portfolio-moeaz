@@ -27,17 +27,6 @@ export interface EducationEntry {
   school: string;
   degree: string;
   period: string;
-  detail: string;
-}
-
-export interface Skill {
-  name: string;
-  level: number;
-}
-
-export interface SkillGroup {
-  title: string;
-  skills: Skill[];
 }
 
 export interface Project {
@@ -63,26 +52,26 @@ export const PERSONAL: Personal = {
   shortName: 'Moaez',
   initials: 'MM',
   avatarUrl: '/profile.jpg',
-  role: 'Associate Software Engineer / Flutter Developer',
+  role: 'Associate Software Engineer — Web & Mobile',
   email: 'muhammadmoaezahmad@gmail.com',
   linkedin: 'https://www.linkedin.com/in/your-link-here',
   github: 'https://github.com/your-link-here',
   location: 'Lahore, Pakistan',
-  resumeUrl: '#',
+  resumeUrl: '/Moaez_Ahmad_CV.pdf',
 };
 
 export const ROLE_TYPEWRITER: string[] = [
-  'Mobile APP Developer',
   'Web Developer',
-  'Associate Software Engineer',
+  'Mobile App Developer',
   'Cross-Platform Builder',
+  'Associate Software Engineer',
 ];
 
 export const ABOUT: About = {
-  headline: 'Crafting cross-platform experiences with a love for clean code.',
+  headline: 'Building polished products for the web and mobile.',
   body: [
-    "I'm a Computer Science graduate from GCU Lahore who turns ideas into polished mobile and full-stack experiences. My focus is Flutter — pairing it with Firebase, REST APIs, and on-device ML to ship apps that feel responsive and look unmistakably modern.",
-    'Beyond Flutter, I work comfortably across React Native, Java, Python, and C/C++. I enjoy translating fuzzy product requirements into solid architecture, writing maintainable code, and collaborating with teammates who care about the details.',
+    "I'm a Computer Science graduate from GCU Lahore who turns ideas into shipped products — on the browser and in your pocket. I work across modern web stacks (React, Next.js, Remix, TypeScript, Tailwind) and cross-platform mobile (Flutter, React Native), backed by Firebase, REST APIs, and on-device ML when it adds real value.",
+    'Whether the target is a phone, a desktop browser, or both, I aim for the same bar: responsive, accessible, and unmistakably modern. I enjoy translating fuzzy product requirements into solid architecture, writing maintainable typed code, and collaborating with teammates who sweat the details.',
   ],
 };
 
@@ -91,47 +80,57 @@ export const EDUCATION: EducationEntry[] = [
     school: 'Government College University, Lahore',
     degree: 'BS Computer Science',
     period: '2021 — 2025',
-    detail: 'CGPA: 3.14 / 4.00',
   },
 ];
 
-export const SKILL_GROUPS: SkillGroup[] = [
+export interface ProcessStep {
+  step: string;
+  title: string;
+  description: string;
+}
+
+export const PROCESS_STEPS: ProcessStep[] = [
   {
-    title: 'Mobile & Frontend',
-    skills: [
-      { name: 'Flutter', level: 92 },
-      { name: 'React Native', level: 78 },
-      { name: 'HTML / CSS', level: 85 },
-      { name: 'JavaScript', level: 82 },
-    ],
+    step: '01',
+    title: 'Discover',
+    description:
+      'Talk through the problem, nail down requirements, and find the right primitives before any code is written.',
   },
   {
-    title: 'Backend & Data',
-    skills: [
-      { name: 'Firebase', level: 88 },
-      { name: 'REST APIs', level: 85 },
-      { name: 'SQL', level: 80 },
-      { name: 'Python', level: 78 },
-    ],
+    step: '02',
+    title: 'Design',
+    description:
+      'Architect the data flow, sketch the UI, and pick a stack that matches the team and the timeline.',
   },
   {
-    title: 'Languages & Foundations',
-    skills: [
-      { name: 'Java', level: 82 },
-      { name: 'C / C++', level: 80 },
-      { name: 'OOP', level: 88 },
-      { name: 'DSA', level: 80 },
-    ],
+    step: '03',
+    title: 'Build',
+    description:
+      'Implement with clean, typed code. Test as I go, keep PRs small, and ship behind flags when it matters.',
   },
   {
-    title: 'Tools & ML',
-    skills: [
-      { name: 'Git / GitHub', level: 88 },
-      { name: 'NumPy', level: 75 },
-      { name: 'OpenCV', level: 72 },
-      { name: 'MediaPipe', level: 72 },
-    ],
+    step: '04',
+    title: 'Ship',
+    description:
+      'Deploy, monitor, and iterate based on real usage. Polish in production once the loop is closed.',
   },
+];
+
+export const MARQUEE_TAGS: string[] = [
+  'Flutter',
+  'React',
+  'Next.js',
+  'Remix',
+  'React Native',
+  'TypeScript',
+  'Firebase',
+  'Tailwind CSS',
+  'Framer Motion',
+  'REST APIs',
+  'Cross-Platform',
+  'Mobile First',
+  'Responsive Web',
+  'ML Kit',
 ];
 
 export const PROJECTS: Project[] = [
@@ -264,7 +263,7 @@ export const PROJECTS: Project[] = [
 export const NAV_LINKS: NavLink[] = [
   { id: 'hero', label: 'Home' },
   { id: 'about', label: 'About' },
-  { id: 'skills', label: 'Skills' },
+  { id: 'process', label: 'Process' },
   { id: 'projects', label: 'Projects' },
   { id: 'contact', label: 'Contact' },
 ];

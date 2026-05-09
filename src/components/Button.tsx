@@ -17,6 +17,7 @@ interface ButtonProps {
   icon?: ReactNode;
   external?: boolean;
   disabled?: boolean;
+  download?: boolean | string;
 }
 
 const SHARED =
@@ -40,6 +41,7 @@ export const Button = ({
   icon,
   external = false,
   disabled = false,
+  download,
 }: ButtonProps): JSX.Element => {
   const content = (
     <>
@@ -55,6 +57,7 @@ export const Button = ({
         onClick={onClick}
         target={external ? '_blank' : undefined}
         rel={external ? 'noreferrer noopener' : undefined}
+        download={download}
         className={classes(variant)}
       >
         {content}

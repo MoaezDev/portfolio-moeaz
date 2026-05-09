@@ -32,12 +32,12 @@ const ACCENT_GLOW: Record<ProjectAccent, string> = {
   sky: 'hover:shadow-glow-sky',
 };
 
-const ACCENT_BORDER_GRAD: Record<ProjectAccent, string> = {
-  indigo: 'before:bg-accent-indigo',
-  emerald: 'before:bg-accent-emerald',
-  amber: 'before:bg-accent-amber',
-  rose: 'before:bg-accent-rose',
-  sky: 'before:bg-accent-sky',
+const ACCENT_BORDER_HOVER: Record<ProjectAccent, string> = {
+  indigo: 'hover:border-indigo-400/50',
+  emerald: 'hover:border-emerald-400/50',
+  amber: 'hover:border-amber-400/50',
+  rose: 'hover:border-rose-400/50',
+  sky: 'hover:border-sky-400/50',
 };
 
 const TILT_OPTIONS = {
@@ -63,11 +63,9 @@ export const ProjectCard = ({
     <motion.div
       whileTap={{ scale: 0.99 }}
       className={clsx(
-        'group/card relative flex flex-col text-left w-full h-full rounded-lg bg-surface border border-border backdrop-blur-[14px] overflow-hidden transition-[box-shadow,transform] duration-300',
+        'group/card relative flex flex-col text-left w-full h-full rounded-lg bg-surface border border-border backdrop-blur-[14px] overflow-hidden transition-[box-shadow,border-color,transform] duration-300',
         ACCENT_GLOW[project.accent],
-        // Animated gradient border via ::before with mask trick
-        "before:content-[''] before:absolute before:-inset-px before:rounded-[inherit] before:p-px before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100 before:pointer-events-none before:[mask:linear-gradient(#000_0_0)_content-box,linear-gradient(#000_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude]",
-        ACCENT_BORDER_GRAD[project.accent],
+        ACCENT_BORDER_HOVER[project.accent],
       )}
     >
       <button
@@ -89,10 +87,12 @@ export const ProjectCard = ({
       </button>
 
       <div className="flex flex-col flex-1 p-6 pt-6 max-sm:p-5">
-        <h3 className="text-[1.3rem] text-text">{project.title}</h3>
-        <p className="mt-2.5 text-text-muted text-[0.95rem]">{project.summary}</p>
+        <h3 className="text-[1.3rem] text-text line-clamp-2">{project.title}</h3>
+        <p className="mt-2.5 text-text-muted text-[0.95rem] line-clamp-3">
+          {project.summary}
+        </p>
 
-        <ul className="flex flex-wrap gap-2 list-none mt-4">
+        <ul className="flex flex-wrap gap-2 list-none mt-4 mb-5">
           {project.stack.map((tag) => (
             <li
               key={tag}
@@ -103,7 +103,7 @@ export const ProjectCard = ({
           ))}
         </ul>
 
-        <div className="flex gap-2.5 mt-[22px] pt-[18px] border-t border-border">
+        <div className="flex gap-2.5 mt-auto pt-[18px] border-t border-border">
           {project.repoUrl && (
             <a
               href={project.repoUrl}
