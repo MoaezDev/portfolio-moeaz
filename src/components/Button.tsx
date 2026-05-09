@@ -3,8 +3,8 @@
  * and outlined glass) and optional icon slots. Renders as an anchor when
  * `href` is provided, otherwise as a native button.
  */
+import clsx from 'clsx';
 import type { MouseEventHandler, ReactNode } from 'react';
-import styled, { css } from 'styled-components';
 
 type ButtonVariant = 'primary' | 'ghost';
 
@@ -16,67 +16,22 @@ interface ButtonProps {
   onClick?: MouseEventHandler<HTMLElement>;
   icon?: ReactNode;
   external?: boolean;
+  disabled?: boolean;
 }
 
-const sharedStyles = css`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px 26px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  white-space: nowrap;
-  border-radius: ${({ theme }) => theme.radii.pill};
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    background 0.25s ease;
-  letter-spacing: 0.01em;
+const SHARED =
+  'inline-flex items-center justify-center gap-2.5 px-[26px] py-3.5 font-semibold text-[0.95rem] whitespace-nowrap rounded-pill tracking-[0.01em] transition-[transform,box-shadow,background] duration-[250ms] hover:-translate-y-0.5 max-sm:px-5 max-sm:py-3 max-sm:text-[0.9rem] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0';
 
-  &:hover {
-    transform: translateY(-2px);
-  }
+const PRIMARY = 'text-white bg-brand shadow-glow-blue hover:shadow-glow-violet';
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 12px 20px;
-    font-size: 0.9rem;
-  }
-`;
+const GHOST =
+  'text-text bg-white/[0.04] border border-border backdrop-blur-md hover:bg-white/[0.08] hover:border-primary';
 
-const PrimaryStyles = css`
-  ${sharedStyles};
-  color: #ffffff;
-  background: ${({ theme }) => theme.gradients.brand};
-  box-shadow: ${({ theme }) => theme.shadows.glowBlue};
+function classes(variant: ButtonVariant): string {
+  return clsx(SHARED, variant === 'primary' ? PRIMARY : GHOST);
+}
 
-  &:hover {
-    box-shadow: ${({ theme }) => theme.shadows.glowViolet};
-  }
-`;
-
-const GhostStyles = css`
-  ${sharedStyles};
-  color: ${({ theme }) => theme.colors.text};
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  backdrop-filter: blur(8px);
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: ${({ theme }) => theme.colors.primary};
-  }
-`;
-
-const StyledAnchor = styled.a<{ $variant: ButtonVariant }>`
-  ${({ $variant }) => ($variant === 'primary' ? PrimaryStyles : GhostStyles)};
-`;
-
-const StyledButton = styled.button<{ $variant: ButtonVariant }>`
-  ${({ $variant }) => ($variant === 'primary' ? PrimaryStyles : GhostStyles)};
-`;
-
-export function Button({
+export const Button = ({
   children,
   variant = 'primary',
   href,
@@ -84,7 +39,8 @@ export function Button({
   onClick,
   icon,
   external = false,
-}: ButtonProps): JSX.Element {
+  disabled = false,
+}: ButtonProps): JSX.Element => {
   const content = (
     <>
       {icon && <span aria-hidden="true">{icon}</span>}
@@ -94,22 +50,22 @@ export function Button({
 
   if (href) {
     return (
-      <StyledAnchor
+      <a
         href={href}
-        $variant={variant}
         onClick={onClick}
         target={external ? '_blank' : undefined}
         rel={external ? 'noreferrer noopener' : undefined}
+        className={classes(variant)}
       >
         {content}
-      </StyledAnchor>
+      </a>
     );
   }
 
   return (
     // eslint-disable-next-line react/button-has-type
-    <StyledButton type={type} $variant={variant} onClick={onClick}>
+    <button type={type} onClick={onClick} disabled={disabled} className={classes(variant)}>
       {content}
-    </StyledButton>
+    </button>
   );
-}
+};

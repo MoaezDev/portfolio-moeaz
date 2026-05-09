@@ -5,9 +5,9 @@
  * Auto-advance pauses for 6s after any user interaction so they have
  * time to read whichever slide they jumped to.
  */
+import clsx from 'clsx';
 import { motion, type PanInfo } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
 import { ProjectCard } from '@components/ProjectCard';
 import type { Project } from '@constants/data';
 
@@ -21,62 +21,10 @@ const RESUME_AFTER_MS = 6000;
 const SWIPE_DISTANCE_PX = 50;
 const SWIPE_VELOCITY = 300;
 
-const Viewport = styled.div`
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-radius: ${({ theme }) => theme.radii.lg};
-  touch-action: pan-y;
-`;
-
-const Strip = styled(motion.div)`
-  display: flex;
-  width: 100%;
-  cursor: grab;
-
-  &:active {
-    cursor: grabbing;
-  }
-`;
-
-const Slide = styled.div`
-  flex: 0 0 100%;
-  width: 100%;
-  min-width: 0;
-  padding: 4px;
-  display: flex;
-
-  & > * {
-    width: 100%;
-  }
-`;
-
-const Dots = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 22px;
-`;
-
-const Dot = styled.button<{ $active: boolean }>`
-  width: ${({ $active }) => ($active ? '28px' : '10px')};
-  height: 10px;
-  border-radius: ${({ theme }) => theme.radii.pill};
-  background: ${({ $active, theme }) =>
-    $active ? theme.gradients.brand : 'rgba(255, 255, 255, 0.18)'};
-  box-shadow: ${({ $active, theme }) => ($active ? theme.shadows.glowBlue : 'none')};
-  transition:
-    width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    background 0.3s ease,
-    box-shadow 0.3s ease;
-
-  &:hover {
-    background: ${({ $active, theme }) =>
-      $active ? theme.gradients.brand : 'rgba(255, 255, 255, 0.32)'};
-  }
-`;
-
-export function ProjectCarousel({ projects, onOpen }: ProjectCarouselProps): JSX.Element | null {
+export const ProjectCarousel = ({
+  projects,
+  onOpen,
+}: ProjectCarouselProps): JSX.Element | null => {
   const [index, setIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -127,8 +75,8 @@ export function ProjectCarousel({ projects, onOpen }: ProjectCarouselProps): JSX
 
   return (
     <div>
-      <Viewport>
-        <Strip
+      <div className="relative w-full overflow-hidden rounded-lg touch-pan-y">
+        <motion.div
           animate={{ x: `-${index * 100}%` }}
           transition={{ type: 'spring', stiffness: 240, damping: 30, mass: 0.6 }}
           drag="x"
@@ -136,32 +84,45 @@ export function ProjectCarousel({ projects, onOpen }: ProjectCarouselProps): JSX
           dragElastic={0.18}
           onDragStart={() => setIsPaused(true)}
           onDragEnd={handleDragEnd}
+          className="flex w-full cursor-grab active:cursor-grabbing"
         >
           {projects.map((project) => (
-            <Slide key={project.id} aria-hidden={projects[index].id !== project.id}>
+            <div
+              key={project.id}
+              aria-hidden={projects[index].id !== project.id}
+              className="flex-[0_0_100%] w-full min-w-0 p-1 flex [&>*]:w-full"
+            >
               <ProjectCard project={project} onOpen={onOpen} tilt={false} />
-            </Slide>
+            </div>
           ))}
-        </Strip>
-      </Viewport>
+        </motion.div>
+      </div>
 
       {slideCount > 1 && (
-        <Dots role="tablist" aria-label="Project slides">
-          {projects.map((project, slideIndex) => (
-            <Dot
-              key={project.id}
-              type="button"
-              role="tab"
-              $active={slideIndex === index}
-              aria-selected={slideIndex === index}
-              aria-label={`Go to slide ${slideIndex + 1} of ${slideCount}: ${project.title}`}
-              onClick={() => {
-                goTo(slideIndex);
-                pauseTemporarily();
-              }}
-            />
-          ))}
-        </Dots>
+        <div role="tablist" aria-label="Project slides" className="flex justify-center gap-2.5 mt-[22px]">
+          {projects.map((project, slideIndex) => {
+            const isActive = slideIndex === index;
+            return (
+              <button
+                key={project.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-label={`Go to slide ${slideIndex + 1} of ${slideCount}: ${project.title}`}
+                onClick={() => {
+                  goTo(slideIndex);
+                  pauseTemporarily();
+                }}
+                className={clsx(
+                  'h-2.5 rounded-pill transition-[width,background,box-shadow] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]',
+                  isActive
+                    ? 'w-7 bg-brand shadow-glow-blue hover:bg-brand'
+                    : 'w-2.5 bg-white/[0.18] hover:bg-white/[0.32]',
+                )}
+              />
+            );
+          })}
+        </div>
       )}
     </div>
   );

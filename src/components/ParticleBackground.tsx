@@ -8,7 +8,7 @@ import Particles from 'react-tsparticles';
 import type { Engine } from 'tsparticles-engine';
 import { loadSlim } from 'tsparticles-slim';
 
-export function ParticleBackground(): JSX.Element {
+export const ParticleBackground = (): JSX.Element => {
   const init = useCallback(async (engine: Engine): Promise<void> => {
     await loadSlim(engine);
   }, []);

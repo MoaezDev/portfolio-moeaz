@@ -5,7 +5,6 @@
 import { motion } from 'framer-motion';
 import { FiArrowDownCircle } from 'react-icons/fi';
 import { HiOutlineMail } from 'react-icons/hi';
-import styled from 'styled-components';
 import { AvatarBadge } from '@components/AvatarBadge';
 import { Button } from '@components/Button';
 import { ParticleBackground } from '@components/ParticleBackground';
@@ -13,190 +12,34 @@ import { PERSONAL, ROLE_TYPEWRITER } from '@constants/data';
 import { useTypewriter } from '@hooks/useTypewriter';
 import { scrollToSection } from '@utils/scroll';
 
-const Wrapper = styled.section`
-  position: relative;
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 120px 24px 80px;
-  overflow: hidden;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: 110px 20px 80px;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 100px 16px 72px;
-  }
-`;
-
-const Content = styled.div`
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  align-items: center;
-  gap: 60px;
-  max-width: 1180px;
-  width: 100%;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    grid-template-columns: 1fr;
-    text-align: center;
-    gap: 40px;
-
-    & > [data-hero-slot='avatar'] {
-      order: -1;
-    }
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    gap: 24px;
-  }
-`;
-
-const Eyebrow = styled.span`
-  display: inline-block;
-  font-family: ${({ theme }) => theme.fonts.mono};
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: ${({ theme }) => theme.colors.gold};
-  background: rgba(245, 196, 107, 0.08);
-  padding: 6px 14px;
-  border-radius: ${({ theme }) => theme.radii.pill};
-  border: 1px solid rgba(245, 196, 107, 0.25);
-  margin-bottom: 22px;
-`;
-
-const Headline = styled.h1`
-  font-size: clamp(1.9rem, 5.2vw, 4.2rem);
-  line-height: 1.1;
-  margin-bottom: 18px;
-  word-break: break-word;
-`;
-
-const Gradient = styled.span`
-  background: ${({ theme }) => theme.gradients.brand};
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-`;
-
-const RoleLine = styled.div`
-  font-family: ${({ theme }) => theme.fonts.mono};
-  font-size: clamp(0.92rem, 2vw, 1.35rem);
-  color: ${({ theme }) => theme.colors.textMuted};
-  margin-bottom: 28px;
-  min-height: 1.6em;
-  word-break: break-word;
-
-  & .cursor {
-    color: ${({ theme }) => theme.colors.primary};
-    margin-left: 2px;
-    animation: blink 1s steps(1) infinite;
-  }
-
-  @keyframes blink {
-    50% { opacity: 0; }
-  }
-`;
-
-const Tagline = styled.p`
-  max-width: 540px;
-  color: ${({ theme }) => theme.colors.textMuted};
-  margin-bottom: 36px;
-  font-size: clamp(0.95rem, 1.6vw, 1.05rem);
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    margin-inline: auto;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    margin-bottom: 24px;
-  }
-`;
-
-const CtaRow = styled.div`
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    justify-content: center;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    gap: 10px;
-    width: 100%;
-
-    & > * {
-      flex: 1 1 140px;
-      justify-content: center;
-    }
-  }
-`;
-
-const AvatarSlot = styled.div`
-  display: grid;
-  place-items: center;
-`;
-
-const ScrollHintAnchor = styled.div`
-  position: absolute;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    bottom: 22px;
-  }
-`;
-
-const ScrollHint = styled(motion.button)`
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  color: ${({ theme }) => theme.colors.textMuted};
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-family: ${({ theme }) => theme.fonts.mono};
-
-  & svg {
-    font-size: 1.4rem;
-    color: ${({ theme }) => theme.colors.primary};
-  }
-`;
-
-export function Hero(): JSX.Element {
+export const Hero = (): JSX.Element => {
   const role = useTypewriter(ROLE_TYPEWRITER);
 
   return (
-    <Wrapper>
+    <section className="relative min-h-screen grid place-items-center px-6 pt-[120px] pb-20 overflow-hidden max-md:px-5 max-md:pt-[110px] max-sm:px-4 max-sm:pt-[100px] max-sm:pb-[72px]">
       <ParticleBackground />
-      <Content>
+      <div className="relative z-[1] grid grid-cols-[1.2fr_0.8fr] items-center gap-[60px] max-w-[1180px] w-full max-md:grid-cols-1 max-md:text-center max-md:gap-10 max-md:[&>[data-hero-slot=avatar]]:order-first max-sm:gap-6">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          <Eyebrow>Hello, I&apos;m</Eyebrow>
-          <Headline>
-            <Gradient>{PERSONAL.name}</Gradient>
-          </Headline>
-          <RoleLine>
+          <span className="inline-block font-mono text-[0.78rem] tracking-[0.18em] uppercase text-gold bg-gold/[0.08] px-3.5 py-1.5 rounded-pill border border-gold/25 mb-[22px]">
+            Hello, I&apos;m
+          </span>
+          <h1 className="text-[clamp(1.9rem,5.2vw,4.2rem)] leading-[1.1] mb-[18px] break-words">
+            <span className="bg-brand bg-clip-text text-transparent">{PERSONAL.name}</span>
+          </h1>
+          <div className="font-mono text-[clamp(0.92rem,2vw,1.35rem)] text-text-muted mb-7 min-h-[1.6em] break-words">
             <span>&gt; </span>
             <span>{role}</span>
-            <span className="cursor">|</span>
-          </RoleLine>
-          <Tagline>
+            <span className="text-primary ml-0.5 animate-caret-blink">|</span>
+          </div>
+          <p className="max-w-[540px] text-text-muted mb-9 text-[clamp(0.95rem,1.6vw,1.05rem)] max-md:mx-auto max-sm:mb-6">
             I build elegant cross-platform mobile experiences in Flutter, ship Firebase-powered
             backends, and pair it all with a relentless eye for clean, maintainable code.
-          </Tagline>
-          <CtaRow>
+          </p>
+          <div className="flex gap-3.5 flex-wrap max-md:justify-center max-sm:gap-2.5 max-sm:w-full max-sm:[&>*]:flex-[1_1_140px] max-sm:[&>*]:justify-center">
             <Button onClick={() => scrollToSection('projects')}>View My Work</Button>
             <Button
               variant="ghost"
@@ -205,7 +48,7 @@ export function Hero(): JSX.Element {
             >
               Get In Touch
             </Button>
-          </CtaRow>
+          </div>
         </motion.div>
 
         <motion.div
@@ -214,28 +57,29 @@ export function Hero(): JSX.Element {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
         >
-          <AvatarSlot>
+          <div className="grid place-items-center">
             <AvatarBadge
               initials={PERSONAL.initials}
               imageSrc={PERSONAL.avatarUrl}
               ariaLabel={PERSONAL.name}
             />
-          </AvatarSlot>
+          </div>
         </motion.div>
-      </Content>
+      </div>
 
-      <ScrollHintAnchor>
-        <ScrollHint
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[1] max-sm:bottom-[22px]">
+        <motion.button
           type="button"
           onClick={() => scrollToSection('about')}
           animate={{ y: [0, 6, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           aria-label="Scroll to next section"
+          className="inline-flex flex-col items-center gap-1.5 text-text-muted text-[0.78rem] tracking-[0.18em] uppercase font-mono [&>svg]:text-[1.4rem] [&>svg]:text-primary"
         >
           <span>Scroll</span>
           <FiArrowDownCircle />
-        </ScrollHint>
-      </ScrollHintAnchor>
-    </Wrapper>
+        </motion.button>
+      </div>
+    </section>
   );
 }

@@ -5,7 +5,6 @@
  */
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
-import styled from 'styled-components';
 import { fadeUp } from '@utils/motion';
 
 interface SectionWrapperProps {
@@ -15,65 +14,17 @@ interface SectionWrapperProps {
   title?: string;
 }
 
-const Section = styled.section`
-  position: relative;
-  padding: 120px 24px;
-  scroll-margin-top: 72px;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: 80px 18px;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 64px 16px;
-  }
-`;
-
-const Inner = styled.div`
-  max-width: 1180px;
-  margin: 0 auto;
-`;
-
-const Header = styled.div`
-  margin-bottom: 56px;
-  text-align: center;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    margin-bottom: 36px;
-  }
-`;
-
-const Eyebrow = styled.span`
-  display: inline-block;
-  font-family: ${({ theme }) => theme.fonts.mono};
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: ${({ theme }) => theme.colors.primary};
-  background: ${({ theme }) => theme.gradients.brandSoft};
-  padding: 6px 14px;
-  border-radius: ${({ theme }) => theme.radii.pill};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-`;
-
-const Title = styled.h2`
-  margin-top: 18px;
-  font-size: clamp(1.7rem, 4vw, 2.75rem);
-  background: ${({ theme }) => theme.gradients.brand};
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-`;
-
-export function SectionWrapper({
+export const SectionWrapper = ({
   id,
   children,
   eyebrow,
   title,
-}: SectionWrapperProps): JSX.Element {
-  return (
-    <Section id={id}>
-      <Inner>
+}: SectionWrapperProps): JSX.Element => (
+    <section
+      id={id}
+      className="relative px-6 py-[120px] scroll-mt-[72px] max-md:px-[18px] max-md:py-20 max-sm:px-4 max-sm:py-16"
+    >
+      <div className="max-w-[1180px] mx-auto">
         {(eyebrow || title) && (
           <motion.div
             variants={fadeUp}
@@ -81,14 +32,21 @@ export function SectionWrapper({
             whileInView="visible"
             viewport={{ once: true, amount: 0.4 }}
           >
-            <Header>
-              {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-              {title && <Title>{title}</Title>}
-            </Header>
+            <div className="mb-14 text-center max-sm:mb-9">
+              {eyebrow && (
+                <span className="inline-block font-mono text-[0.78rem] tracking-[0.18em] uppercase text-primary bg-brand-soft border border-border rounded-pill px-3.5 py-1.5">
+                  {eyebrow}
+                </span>
+              )}
+              {title && (
+                <h2 className="mt-[18px] text-[clamp(1.7rem,4vw,2.75rem)] bg-brand bg-clip-text text-transparent">
+                  {title}
+                </h2>
+              )}
+            </div>
           </motion.div>
         )}
         {children}
-      </Inner>
-    </Section>
-  );
-}
+      </div>
+    </section>
+  )

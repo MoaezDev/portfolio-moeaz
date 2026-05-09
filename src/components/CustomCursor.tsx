@@ -11,12 +11,18 @@
  */
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import styled from 'styled-components';
 
 const SPRING_DOT = { stiffness: 800, damping: 30, mass: 0.18 };
 const SPRING_HALO = { stiffness: 220, damping: 24, mass: 0.45 };
 const SPRING_TRAIL_NEAR = { stiffness: 130, damping: 22, mass: 0.75 };
 const SPRING_TRAIL_FAR = { stiffness: 80, damping: 22, mass: 1 };
+
+const HALO_BG_DEFAULT =
+  'radial-gradient(circle, rgba(168, 85, 247, 0.55) 0%, rgba(59, 130, 246, 0.4) 35%, rgba(59, 130, 246, 0) 70%)';
+const HALO_BG_HOVER =
+  'radial-gradient(circle, rgba(245, 196, 107, 0.5) 0%, rgba(168, 85, 247, 0.4) 35%, rgba(168, 85, 247, 0) 70%)';
+const TRAIL_BG =
+  'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, rgba(168, 85, 247, 0.18) 50%, transparent 75%)';
 
 function computeHaloScale(isPressed: boolean, isHovering: boolean): number {
   if (isPressed) return 0.7;
@@ -33,70 +39,7 @@ function computeHaloOpacity(isVisible: boolean, isHovering: boolean): number {
   return isHovering ? 1 : 0.85;
 }
 
-const Layer = styled.div`
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: ${({ theme }) => theme.z.cursor};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    display: none;
-  }
-
-  @media (hover: none), (pointer: coarse) {
-    display: none;
-  }
-`;
-
-const Dot = styled(motion.div)`
-  position: fixed;
-  top: -3px;
-  left: -3px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #ffffff;
-  box-shadow:
-    0 0 6px rgba(255, 255, 255, 0.95),
-    0 0 14px rgba(168, 85, 247, 0.7);
-  will-change: transform, opacity;
-`;
-
-const Halo = styled(motion.div)`
-  position: fixed;
-  top: -28px;
-  left: -28px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(168, 85, 247, 0.55) 0%,
-    rgba(59, 130, 246, 0.4) 35%,
-    rgba(59, 130, 246, 0) 70%
-  );
-  filter: blur(4px);
-  will-change: transform, opacity, background;
-`;
-
-const Trail = styled(motion.div)<{ $size: number }>`
-  position: fixed;
-  top: ${({ $size }) => -$size / 2}px;
-  left: ${({ $size }) => -$size / 2}px;
-  width: ${({ $size }) => $size}px;
-  height: ${({ $size }) => $size}px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(59, 130, 246, 0.4) 0%,
-    rgba(168, 85, 247, 0.18) 50%,
-    transparent 75%
-  );
-  filter: blur(3px);
-  will-change: transform, opacity;
-`;
-
-export function CustomCursor(): JSX.Element {
+export const CustomCursor = (): JSX.Element => {
   const pointerX = useMotionValue(-100);
   const pointerY = useMotionValue(-100);
 
@@ -155,31 +98,49 @@ export function CustomCursor(): JSX.Element {
   const haloOpacity = computeHaloOpacity(isVisible, isHovering);
 
   return (
-    <Layer>
-      <Trail
-        $size={26}
-        style={{ x: trailFarX, y: trailFarY }}
+    <div className="pointer-events-none fixed inset-0 z-cursor max-md:hidden [@media(hover:none)]:hidden [@media(pointer:coarse)]:hidden">
+      <motion.div
+        style={{
+          x: trailFarX,
+          y: trailFarY,
+          background: TRAIL_BG,
+          top: -13,
+          left: -13,
+          width: 26,
+          height: 26,
+        }}
         animate={{ opacity: isVisible ? 0.55 : 0 }}
         transition={{ duration: 0.25 }}
+        className="fixed rounded-full blur-[3px] [will-change:transform,opacity]"
       />
-      <Trail
-        $size={18}
-        style={{ x: trailNearX, y: trailNearY }}
+      <motion.div
+        style={{
+          x: trailNearX,
+          y: trailNearY,
+          background: TRAIL_BG,
+          top: -9,
+          left: -9,
+          width: 18,
+          height: 18,
+        }}
         animate={{ opacity: isVisible ? 0.75 : 0 }}
         transition={{ duration: 0.2 }}
+        className="fixed rounded-full blur-[3px] [will-change:transform,opacity]"
       />
-      <Halo
+      <motion.div
         style={{ x: haloX, y: haloY }}
         animate={{
           scale: haloScale,
           opacity: haloOpacity,
-          background: isHovering
-            ? 'radial-gradient(circle, rgba(245, 196, 107, 0.5) 0%, rgba(168, 85, 247, 0.4) 35%, rgba(168, 85, 247, 0) 70%)'
-            : 'radial-gradient(circle, rgba(168, 85, 247, 0.55) 0%, rgba(59, 130, 246, 0.4) 35%, rgba(59, 130, 246, 0) 70%)',
+          background: isHovering ? HALO_BG_HOVER : HALO_BG_DEFAULT,
         }}
         transition={{ type: 'spring', stiffness: 280, damping: 22, mass: 0.4 }}
+        className="fixed top-[-28px] left-[-28px] w-14 h-14 rounded-full blur-[4px] [will-change:transform,opacity,background]"
       />
-      <Dot style={{ x: dotX, y: dotY, opacity: baseOpacity }} />
-    </Layer>
+      <motion.div
+        style={{ x: dotX, y: dotY, opacity: baseOpacity }}
+        className="fixed top-[-3px] left-[-3px] w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.95),0_0_14px_rgba(168,85,247,0.7)] [will-change:transform,opacity]"
+      />
+    </div>
   );
 }
