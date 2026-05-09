@@ -10,12 +10,13 @@ import { Navbar } from '@components/Navbar';
 import { ScrollProgress } from '@components/ScrollProgress';
 import { SkillsMarquee } from '@components/SkillsMarquee';
 import { SplashScreen } from '@components/SplashScreen';
+import { ThemeToggle } from '@components/ThemeToggle';
 import { useFirstVisit } from '@hooks/useFirstVisit';
 import { About } from '@sections/About';
 import { Contact } from '@sections/Contact';
 import { Hero } from '@sections/Hero';
+import { Process } from '@sections/Process';
 import { Projects } from '@sections/Projects';
-import { Skills } from '@sections/Skills';
 
 export const App = (): JSX.Element => {
   const { isFirstVisit, markVisited } = useFirstVisit();
@@ -32,11 +33,12 @@ export const App = (): JSX.Element => {
         <Hero />
         <About />
         <SkillsMarquee />
-        <Skills />
+        <Process />
         <Projects />
         <Contact />
       </main>
       <Footer />
+      <ThemeToggle />
     </>
   );
 }

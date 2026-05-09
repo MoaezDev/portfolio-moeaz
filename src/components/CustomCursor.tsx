@@ -1,10 +1,11 @@
 /**
  * CustomCursor — replaces the native pointer with a glowing comet:
- * a sharp white core, a soft violet/blue radial halo, and two lagging
- * trail orbs that fade behind the cursor as it moves. Each layer is
- * driven by its own `useSpring` so position updates are written
- * straight to the DOM (no React re-renders per frame), and each spring
- * has progressively softer physics so the trail fans out naturally.
+ * a sharp white core (bound directly to the pointer for zero lag),
+ * a soft violet/blue radial halo, and two lagging trail orbs. Each
+ * non-dot layer is driven by its own `useSpring` so position updates
+ * are written straight to the DOM (no React re-renders per frame),
+ * and each spring has progressively softer physics so the trail fans
+ * out naturally behind the dot.
  *
  * Hover/press states retint and resize the halo. The whole layer is
  * hidden on touch / coarse-pointer devices via media queries.
@@ -12,8 +13,7 @@
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-const SPRING_DOT = { stiffness: 800, damping: 30, mass: 0.18 };
-const SPRING_HALO = { stiffness: 220, damping: 24, mass: 0.45 };
+const SPRING_HALO = { stiffness: 320, damping: 28, mass: 0.4 };
 const SPRING_TRAIL_NEAR = { stiffness: 130, damping: 22, mass: 0.75 };
 const SPRING_TRAIL_FAR = { stiffness: 80, damping: 22, mass: 1 };
 
@@ -43,8 +43,6 @@ export const CustomCursor = (): JSX.Element => {
   const pointerX = useMotionValue(-100);
   const pointerY = useMotionValue(-100);
 
-  const dotX = useSpring(pointerX, SPRING_DOT);
-  const dotY = useSpring(pointerY, SPRING_DOT);
   const haloX = useSpring(pointerX, SPRING_HALO);
   const haloY = useSpring(pointerY, SPRING_HALO);
   const trailNearX = useSpring(pointerX, SPRING_TRAIL_NEAR);
@@ -138,7 +136,7 @@ export const CustomCursor = (): JSX.Element => {
         className="fixed top-[-28px] left-[-28px] w-14 h-14 rounded-full blur-[4px] [will-change:transform,opacity,background]"
       />
       <motion.div
-        style={{ x: dotX, y: dotY, opacity: baseOpacity }}
+        style={{ x: pointerX, y: pointerY, opacity: baseOpacity }}
         className="fixed top-[-3px] left-[-3px] w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.95),0_0_14px_rgba(168,85,247,0.7)] [will-change:transform,opacity]"
       />
     </div>

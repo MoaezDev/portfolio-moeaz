@@ -84,8 +84,8 @@ export const Contact = (): JSX.Element => {
             Open to interesting roles & freelance work.
           </h3>
           <p className="text-text-muted max-w-[460px]">
-            Got a Flutter project, a cross-platform idea, or a role you think I&apos;d enjoy? The
-            fastest way to reach me is below — I read every message.
+            Got a web or mobile project in mind, an idea you want validated, or a role you think
+            I&apos;d enjoy? The fastest way to reach me is below — I read every message.
           </p>
           <ul className="flex flex-wrap gap-3 list-none mt-2">
             <li>
